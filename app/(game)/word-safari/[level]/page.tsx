@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store";
+import { useTTS } from "@/lib/useTTS";
 import { motion, AnimatePresence } from "framer-motion";
 import GameShell from "@/components/GameShell";
 import { LevelComplete, ComboIndicator } from "@/components/Celebrations";
@@ -117,6 +118,8 @@ export default function WordSafariLevel() {
   const totalRounds = getRoundsPerLevel(levelNum);
   const mechanic = getMechanicForLevel(levelNum);
 
+  const { speak } = useTTS();
+
   // Game Play States
   const [currentRound, setCurrentRound] = useState(0);
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -155,6 +158,19 @@ export default function WordSafariLevel() {
     }
   }, [currentRound, gamePhase, levelNum, difficulty]);
 
+  // Speak problem on load/change
+  useEffect(() => {
+    if (problem && gamePhase === "playing") {
+      if (problem.equation.includes("___")) {
+        speak(problem.equation);
+      } else if (problem.word) {
+        speak(`Spell ${problem.word}`);
+      } else {
+        speak(problem.equation);
+      }
+    }
+  }, [problem, gamePhase, speak]);
+
   if (!problem) return null;
 
   const activeMechanic =
@@ -167,6 +183,7 @@ export default function WordSafariLevel() {
       : mechanic;
 
   const handleCorrect = () => {
+    speak("Correct!");
     setShowSuccessFlash(true);
     incrementCombo();
     setComboMax((prev) => Math.max(prev, comboStreak + 1));
@@ -221,6 +238,7 @@ export default function WordSafariLevel() {
   };
 
   const handleWrong = () => {
+    speak("Try again!");
     setShowWrong(true);
     resetCombo();
     setRoundErrors((prev) => prev + 1);
@@ -234,6 +252,7 @@ export default function WordSafariLevel() {
   // Letter Bank Tap Handler (levels 1-2)
   const handleTapLetter = (letter: string, index: number) => {
     if (usedLetterIndices.includes(index)) return;
+    speak(letter);
 
     const nextSpelled = [...spelledLetters, letter];
     const nextUsed = [...usedLetterIndices, index];
@@ -258,6 +277,7 @@ export default function WordSafariLevel() {
 
   // Keyboard Typing Tap Handler (levels 5-6)
   const handleKeyboardTap = (char: string) => {
+    speak(char);
     const targetWord = problem.word || "";
     if (typedAnswer.length < targetWord.length) {
       setTypedAnswer((prev) => prev + char);

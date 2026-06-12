@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store";
+import { useTTS } from "@/lib/useTTS";
 import { motion, AnimatePresence } from "framer-motion";
 import GameShell from "@/components/GameShell";
 import { AnswerOptions } from "@/components/AnswerOptions";
@@ -26,6 +27,8 @@ export default function PicnicLevel() {
   const params = useParams();
   const router = useRouter();
   const levelNum = parseInt(params.level as string) || 1;
+
+  const { speak } = useTTS();
 
   const {
     zoneDifficulties,
@@ -88,6 +91,13 @@ export default function PicnicLevel() {
     }
   }, [currentRound, gamePhase, levelNum, difficulty]);
 
+  // Speak equation when a new problem loads
+  useEffect(() => {
+    if (problem && gamePhase === "playing") {
+      speak(`${problem.a} minus ${problem.b}`);
+    }
+  }, [problem, gamePhase, speak]);
+
   if (!problem) return null;
 
   // Determine actual round mechanic
@@ -97,6 +107,7 @@ export default function PicnicLevel() {
       : mechanic;
 
   const handleCorrect = () => {
+    speak("Correct!");
     setShowSuccessFlash(true);
     incrementCombo();
     setComboMax((prev) => Math.max(prev, comboStreak + 1));
@@ -152,6 +163,7 @@ export default function PicnicLevel() {
   };
 
   const handleWrong = () => {
+    speak("Try again!");
     setShowWrong(true);
     resetCombo();
     setRoundErrors((prev) => prev + 1);

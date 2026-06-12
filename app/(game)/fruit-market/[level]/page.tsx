@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store";
+import { useTTS } from "@/lib/useTTS";
 import { motion, AnimatePresence } from "framer-motion";
 import GameShell from "@/components/GameShell";
 import { AnswerOptions } from "@/components/AnswerOptions";
@@ -26,6 +27,7 @@ export default function FruitMarketLevel() {
   const params = useParams();
   const router = useRouter();
   const levelNum = parseInt(params.level as string) || 1;
+  const { speak } = useTTS();
 
   const {
     zoneDifficulties,
@@ -86,6 +88,17 @@ export default function FruitMarketLevel() {
     }
   }, [currentRound, gamePhase, levelNum, difficulty]);
 
+  const speakRef = useRef(speak);
+  useEffect(() => {
+    speakRef.current = speak;
+  }, [speak]);
+
+  useEffect(() => {
+    if (problem) {
+      speakRef.current(`${problem.a} plus ${problem.b}`);
+    }
+  }, [problem]);
+
   if (!problem) return null;
 
   // Determine actual round mechanic (mixed can be choice or fillin)
@@ -95,6 +108,7 @@ export default function FruitMarketLevel() {
       : mechanic;
 
   const handleCorrect = () => {
+    speak("Correct!");
     setShowSuccessFlash(true);
     incrementCombo();
     setComboMax((prev) => Math.max(prev, comboStreak + 1));
@@ -151,6 +165,7 @@ export default function FruitMarketLevel() {
   };
 
   const handleWrong = () => {
+    speak("Try again!");
     setShowWrong(true);
     resetCombo();
     setRoundErrors((prev) => prev + 1);

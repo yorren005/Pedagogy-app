@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store";
+import { useTTS } from "@/lib/useTTS";
 import { motion, AnimatePresence } from "framer-motion";
 import GameShell from "@/components/GameShell";
 import { AnswerOptions } from "@/components/AnswerOptions";
@@ -23,6 +24,7 @@ import {
 } from "@/lib/rlEngine";
 
 export default function ToyFactoryLevel() {
+  const { speak } = useTTS();
   const params = useParams();
   const router = useRouter();
   const levelNum = parseInt(params.level as string) || 1;
@@ -83,8 +85,9 @@ export default function ToyFactoryLevel() {
       setShowSuccessFlash(false);
       setRoundErrors(0);
       roundStartTime.current = Date.now();
+      speak(`${prob.a} times ${prob.b}`);
     }
-  }, [currentRound, gamePhase, levelNum, difficulty]);
+  }, [currentRound, gamePhase, levelNum, difficulty, speak]);
 
   if (!problem) return null;
 
@@ -95,6 +98,7 @@ export default function ToyFactoryLevel() {
       : mechanic;
 
   const handleCorrect = () => {
+    speak("Correct!");
     setShowSuccessFlash(true);
     incrementCombo();
     setComboMax((prev) => Math.max(prev, comboStreak + 1));
@@ -150,6 +154,7 @@ export default function ToyFactoryLevel() {
   };
 
   const handleWrong = () => {
+    speak("Try again!");
     setShowWrong(true);
     resetCombo();
     setRoundErrors((prev) => prev + 1);

@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GameShell from "@/components/GameShell";
 import { LevelComplete, ComboIndicator } from "@/components/Celebrations";
 import { WrongShake, ConfettiBurst } from "@/components/Particles";
+import { useTTS } from "@/lib/useTTS";
 import {
   generateProblem,
   processPerformance,
@@ -213,6 +214,8 @@ export default function PizzaPartyLevel() {
   const router = useRouter();
   const levelNum = parseInt(params.level as string) || 1;
 
+  const { speak } = useTTS();
+
   const {
     zoneDifficulties,
     zoneLearnerStates,
@@ -242,6 +245,7 @@ export default function PizzaPartyLevel() {
   const [gamePhase, setGamePhase] = useState<"playing" | "complete">("playing");
   const [showWrong, setShowWrong] = useState(false);
   const [showSuccessFlash, setShowSuccessFlash] = useState(false);
+  const [activeMechanic, setActiveMechanic] = useState<string>("drag");
 
   // Distractors options for fractions mode
   const [fractionOptions, setFractionOptions] = useState<FractionOption[]>([]);
@@ -253,6 +257,7 @@ export default function PizzaPartyLevel() {
   const [comboMax, setComboMax] = useState(0);
   const [timesTaken, setTimesTaken] = useState<number[]>([]);
   const roundStartTime = useRef<number>(Date.now());
+  const lastSpokenRoundRef = useRef<number>(-1);
 
   // End level calculations
   const [finalStars, setFinalStars] = useState(0);
@@ -270,11 +275,20 @@ export default function PizzaPartyLevel() {
       setRoundErrors(0);
       roundStartTime.current = Date.now();
 
+      // Resolve mechanic
+      const resolvedMechanic =
+        mechanic === "mixed"
+          ? Math.random() > 0.5
+            ? "fillin"
+            : "choice"
+          : mechanic;
+      setActiveMechanic(resolvedMechanic);
+
       // Initialize selected slices (all false for drag/make, or pre-highlighted for choice/fillin)
       const denom = prob.fractionDenominator || 2;
       const numer = prob.fractionNumerator || 1;
 
-      if (getMechanicForLevel(levelNum) === "drag") {
+      if (resolvedMechanic === "drag") {
         setSelectedSlices(Array(denom).fill(false));
       } else {
         // Highlight first 'numer' slices
@@ -292,16 +306,24 @@ export default function PizzaPartyLevel() {
         setFractionOptions(opts);
       }
     }
-  }, [currentRound, gamePhase, levelNum, difficulty]);
+  }, [currentRound, gamePhase, levelNum, difficulty, mechanic]);
+
+  // Speak prompt when problem or activeMechanic changes
+  useEffect(() => {
+    if (problem && gamePhase === "playing" && lastSpokenRoundRef.current !== currentRound) {
+      lastSpokenRoundRef.current = currentRound;
+      if (activeMechanic === "drag") {
+        speak(`Make ${problem.fractionNumerator} over ${problem.fractionDenominator}`);
+      } else {
+        speak("What fraction is colored?");
+      }
+    }
+  }, [problem, activeMechanic, gamePhase, currentRound, speak]);
 
   if (!problem) return null;
 
-  const activeMechanic =
-    mechanic === "mixed"
-      ? (Math.random() > 0.5 ? "fillin" : "choice")
-      : mechanic;
-
   const handleCorrect = () => {
+    speak("Correct!");
     setShowSuccessFlash(true);
     incrementCombo();
     setComboMax((prev) => Math.max(prev, comboStreak + 1));
@@ -355,6 +377,7 @@ export default function PizzaPartyLevel() {
   };
 
   const handleWrong = () => {
+    speak("Try again!");
     setShowWrong(true);
     resetCombo();
     setRoundErrors((prev) => prev + 1);
@@ -524,6 +547,7 @@ export default function PizzaPartyLevel() {
             setCorrectAnswers(0);
             setComboMax(0);
             setTimesTaken([]);
+            lastSpokenRoundRef.current = -1;
             roundStartTime.current = Date.now();
           }}
         />

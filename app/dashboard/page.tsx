@@ -38,6 +38,14 @@ const ZONE_METADATA = [
     color: "#ffa502",
     accentColor: "rgba(255, 165, 2, 0.2)",
   },
+  {
+    key: "wordSafari" as ZoneKey,
+    name: "Word Safari",
+    subtitle: "Spelling & Vocab",
+    emoji: "🦁",
+    color: "#2ed573",
+    accentColor: "rgba(46, 213, 115, 0.2)",
+  },
 ];
 
 export default function ParentDashboard() {
@@ -59,7 +67,8 @@ export default function ParentDashboard() {
     unlockedLevels.fruitMarket +
     unlockedLevels.picnic +
     unlockedLevels.toyFactory +
-    unlockedLevels.pizzaParty;
+    unlockedLevels.pizzaParty +
+    unlockedLevels.wordSafari;
 
   const handleReset = () => {
     if (
@@ -192,7 +201,7 @@ export default function ParentDashboard() {
                 Completed Levels
               </div>
               <div className="text-2xl font-black text-cyan-400">
-                {totalLevelsUnlocked - 4} / 40
+                {totalLevelsUnlocked - 5} / 50
               </div>
             </div>
           </motion.div>

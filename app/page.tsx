@@ -46,6 +46,16 @@ const ZONES = [
     gradient: "from-[#ffa502] to-[#ff6348]",
     bgGlow: "rgba(255, 165, 2, 0.3)",
   },
+  {
+    key: "wordSafari" as const,
+    name: "Word Safari",
+    subtitle: "Spelling & Vocab",
+    emoji: "🦁",
+    href: "/word-safari",
+    color: "#2ed573",
+    gradient: "from-[#2ed573] to-[#10ac84]",
+    bgGlow: "rgba(46, 213, 115, 0.3)",
+  },
 ];
 
 const FLOATING_ITEMS = [
@@ -263,7 +273,7 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
       >
-        <Link href={`/${['fruit-market', 'the-picnic', 'toy-factory', 'pizza-party'][Math.floor(Date.now() / 86400000) % 4]}`}>
+        <Link href={`/${['fruit-market', 'the-picnic', 'toy-factory', 'pizza-party', 'word-safari'][Math.floor(Date.now() / 86400000) % 5]}`}>
           <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 border border-purple-500/20">
             <div className="absolute -top-6 -right-6 text-7xl opacity-10 rotate-12">🎯</div>
             <div className="relative z-10 flex items-center gap-3">

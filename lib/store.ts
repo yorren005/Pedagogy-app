@@ -3,13 +3,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { LearnerState, Difficulty } from './rlEngine';
 
-export type ZoneKey = 'fruitMarket' | 'picnic' | 'toyFactory' | 'pizzaParty';
+export type ZoneKey = 'fruitMarket' | 'picnic' | 'toyFactory' | 'pizzaParty' | 'wordSafari';
 
 export interface UnlockedLevels {
   fruitMarket: number;
   picnic: number;
   toyFactory: number;
   pizzaParty: number;
+  wordSafari: number;
 }
 
 export interface StarRatings {
@@ -17,6 +18,7 @@ export interface StarRatings {
   picnic: number[];
   toyFactory: number[];
   pizzaParty: number[];
+  wordSafari: number[];
 }
 
 export interface ZoneLearnerStates {
@@ -24,6 +26,7 @@ export interface ZoneLearnerStates {
   picnic: LearnerState;
   toyFactory: LearnerState;
   pizzaParty: LearnerState;
+  wordSafari: LearnerState;
 }
 
 export interface ZoneDifficulties {
@@ -31,6 +34,7 @@ export interface ZoneDifficulties {
   picnic: Difficulty;
   toyFactory: Difficulty;
   pizzaParty: Difficulty;
+  wordSafari: Difficulty;
 }
 
 export interface GameState {
@@ -74,6 +78,7 @@ const defaultUnlockedLevels: UnlockedLevels = {
   picnic: 1,
   toyFactory: 1,
   pizzaParty: 1,
+  wordSafari: 1,
 };
 
 const defaultStarRatings: StarRatings = {
@@ -81,6 +86,7 @@ const defaultStarRatings: StarRatings = {
   picnic: Array(10).fill(0),
   toyFactory: Array(10).fill(0),
   pizzaParty: Array(10).fill(0),
+  wordSafari: Array(10).fill(0),
 };
 
 const defaultZoneLearnerStates: ZoneLearnerStates = {
@@ -88,6 +94,7 @@ const defaultZoneLearnerStates: ZoneLearnerStates = {
   picnic: { ...initialLearnerState },
   toyFactory: { ...initialLearnerState },
   pizzaParty: { ...initialLearnerState },
+  wordSafari: { ...initialLearnerState },
 };
 
 const defaultZoneDifficulties: ZoneDifficulties = {
@@ -95,6 +102,7 @@ const defaultZoneDifficulties: ZoneDifficulties = {
   picnic: 'easy',
   toyFactory: 'easy',
   pizzaParty: 'easy',
+  wordSafari: 'easy',
 };
 
 const defaultState: GameState = {
@@ -147,7 +155,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.unlockedLevels) setUnlockedLevels(parsed.unlockedLevels);
+        if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultUnlockedLevels, ...parsed.unlockedLevels });
         if (parsed.stars != null) setStars(parsed.stars);
         if (parsed.coins != null) setCoins(parsed.coins);
         if (parsed.xp != null) {
@@ -155,9 +163,9 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
           setPlayerLevel(getPlayerLevelFromXP(parsed.xp));
         }
         if (parsed.badges) setBadges(parsed.badges);
-        if (parsed.starRatings) setStarRatings(parsed.starRatings);
-        if (parsed.zoneLearnerStates) setZoneLearnerStates(parsed.zoneLearnerStates);
-        if (parsed.zoneDifficulties) setZoneDifficulties(parsed.zoneDifficulties);
+        if (parsed.starRatings) setStarRatings({ ...defaultStarRatings, ...parsed.starRatings });
+        if (parsed.zoneLearnerStates) setZoneLearnerStates({ ...defaultZoneLearnerStates, ...parsed.zoneLearnerStates });
+        if (parsed.zoneDifficulties) setZoneDifficulties({ ...defaultZoneDifficulties, ...parsed.zoneDifficulties });
         if (parsed.maxCombo) setMaxCombo(parsed.maxCombo);
       } catch (e) {
         console.error("Failed to parse save data", e);
@@ -168,7 +176,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
       if (oldSaved) {
         try {
           const parsed = JSON.parse(oldSaved);
-          if (parsed.unlockedLevels) setUnlockedLevels(parsed.unlockedLevels);
+          if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultUnlockedLevels, ...parsed.unlockedLevels });
           if (parsed.stars) setStars(parsed.stars);
           if (parsed.coins) setCoins(parsed.coins);
         } catch (e) {

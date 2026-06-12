@@ -1,5 +1,5 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export type ZoneType = 'addition' | 'subtraction' | 'multiplication' | 'fractions';
+export type ZoneType = 'addition' | 'subtraction' | 'multiplication' | 'fractions' | 'english';
 
 export interface PerformanceMetrics {
   timeTakenMs: number;
@@ -31,6 +31,12 @@ export interface Problem {
   fractionDenominator?: number; // for fractions
   fractionNumerator?: number;
   missingPosition?: 'a' | 'b' | 'answer'; // for fill-in-the-blank
+  // English Zone additions
+  word?: string;
+  emoji?: string;
+  letters?: string[];
+  choices?: string[];
+  correctChoice?: string;
 }
 
 export interface StarRating {
@@ -328,12 +334,127 @@ export function generateFractionProblem(levelNum: number, difficulty: Difficulty
   };
 }
 
+export function generateEnglishProblem(levelNum: number, difficulty: Difficulty): Problem {
+  const EASY_SPELL_ITEMS = [
+    { word: "CAT", emoji: "🐱", distractors: ["COT", "KAT"] },
+    { word: "DOG", emoji: "🐶", distractors: ["DOGG", "DAG"] },
+    { word: "SUN", emoji: "☀️", distractors: ["SON", "SEN"] },
+    { word: "BOX", emoji: "📦", distractors: ["BOK", "BAX"] },
+    { word: "PIG", emoji: "🐷", distractors: ["PEG", "PUG"] },
+    { word: "HAT", emoji: "🎩", distractors: ["HET", "HOT"] },
+    { word: "NET", emoji: "🕸️", distractors: ["NAT", "NIT"] },
+    { word: "CUP", emoji: "🥤", distractors: ["COP", "CAP"] },
+    { word: "BUG", emoji: "🐛", distractors: ["BAG", "BOG"] },
+    { word: "PEN", emoji: "🖊️", distractors: ["PIN", "PAN"] },
+  ];
+
+  const MEDIUM_SPELL_ITEMS = [
+    { word: "FROG", emoji: "🐸", distractors: ["FOG", "FRUG"] },
+    { word: "FISH", emoji: "🐟", distractors: ["FESH", "FICH"] },
+    { word: "TREE", emoji: "🌳", distractors: ["TRE", "FREE"] },
+    { word: "CAKE", emoji: "🍰", distractors: ["CACK", "KAKE"] },
+    { word: "SHIP", emoji: "🚢", distractors: ["SHEP", "CHIP"] },
+    { word: "STAR", emoji: "⭐", distractors: ["STER", "STARE"] },
+    { word: "BIRD", emoji: "🐦", distractors: ["BURD", "BRID"] },
+    { word: "DUCK", emoji: "🦆", distractors: ["DUK", "DOCK"] },
+    { word: "LION", emoji: "🦁", distractors: ["LIEN", "LYON"] },
+    { word: "BALL", emoji: "⚽", distractors: ["BAL", "BOLL"] },
+  ];
+
+  const GRAMMAR_ITEMS = [
+    { sentence: "The bird flies in the ___.", answer: "SKY", emoji: "☁️", choices: ["SKY", "SEA", "GROUND"] },
+    { sentence: "Fish swim in the ___.", answer: "WATER", emoji: "💧", choices: ["WATER", "FIRE", "SKY"] },
+    { sentence: "We go to ___ to learn.", answer: "SCHOOL", emoji: "🏫", choices: ["SCHOOL", "STORE", "PARK"] },
+    { sentence: "The sun is hot and ___.", answer: "YELLOW", emoji: "💛", choices: ["YELLOW", "BLUE", "GREEN"] },
+    { sentence: "An elephant is very ___.", answer: "BIG", emoji: "🐘", choices: ["BIG", "SMALL", "TINY"] },
+    { sentence: "Apples grow on a ___.", answer: "TREE", emoji: "🍎", choices: ["TREE", "VINE", "PLANT"] },
+    { sentence: "A clock shows the ___.", answer: "TIME", emoji: "⏰", choices: ["TIME", "WEATHER", "MONEY"] },
+  ];
+
+  const mechanic = getMechanicForLevel(levelNum);
+
+  // Determine sub-mechanic for mixed mode
+  const resolvedMechanic =
+    mechanic === "mixed"
+      ? Math.random() > 0.5
+        ? "fillin"
+        : "choice"
+      : mechanic;
+
+  if (resolvedMechanic === "drag" || levelNum <= 2) {
+    // Letter bubble bank spelling (Easy words)
+    const list = difficulty === "hard" ? MEDIUM_SPELL_ITEMS : EASY_SPELL_ITEMS;
+    const item = list[randInt(0, list.length - 1)];
+    const wordLetters = item.word.split("");
+    const letters = shuffleArray([...wordLetters]);
+
+    return {
+      a: wordLetters.length,
+      b: wordLetters.length,
+      answer: 1,
+      equation: item.word,
+      options: [],
+      word: item.word,
+      emoji: item.emoji,
+      letters: letters,
+    };
+  } else if (resolvedMechanic === "choice") {
+    // Grammar/Sight words multiple choice (level 7-8 or random 9-10) or spelling MC (level 3-4)
+    if (levelNum >= 7 || Math.random() > 0.5) {
+      const item = GRAMMAR_ITEMS[randInt(0, GRAMMAR_ITEMS.length - 1)];
+      return {
+        a: 0,
+        b: 0,
+        answer: 0,
+        equation: item.sentence,
+        options: [],
+        word: item.answer,
+        emoji: item.emoji,
+        choices: shuffleArray(item.choices),
+        correctChoice: item.answer,
+      };
+    } else {
+      // Spelling Multiple choice (easy/medium words)
+      const list = difficulty === "easy" ? EASY_SPELL_ITEMS : MEDIUM_SPELL_ITEMS;
+      const item = list[randInt(0, list.length - 1)];
+      const choices = shuffleArray([item.word, ...item.distractors]);
+
+      return {
+        a: 0,
+        b: 0,
+        answer: 0,
+        equation: `Spell the word for ${item.emoji}`,
+        options: [],
+        word: item.word,
+        emoji: item.emoji,
+        choices: choices,
+        correctChoice: item.word,
+      };
+    }
+  } else {
+    // fillin: keyboard typing (level 5-6 spelling or level 9-10 spelling)
+    const list = difficulty === "easy" ? EASY_SPELL_ITEMS : MEDIUM_SPELL_ITEMS;
+    const item = list[randInt(0, list.length - 1)];
+
+    return {
+      a: item.word.length,
+      b: item.word.length,
+      answer: 0,
+      equation: `Spell: ${item.word}`,
+      options: [],
+      word: item.word,
+      emoji: item.emoji,
+    };
+  }
+}
+
 export function generateProblem(zone: ZoneType, levelNum: number, difficulty: Difficulty): Problem {
   switch (zone) {
     case 'addition': return generateAdditionProblem(levelNum, difficulty);
     case 'subtraction': return generateSubtractionProblem(levelNum, difficulty);
     case 'multiplication': return generateMultiplicationProblem(levelNum, difficulty);
     case 'fractions': return generateFractionProblem(levelNum, difficulty);
+    case 'english': return generateEnglishProblem(levelNum, difficulty);
   }
 }
 
@@ -362,6 +483,7 @@ export const BADGES: BadgeDefinition[] = [
   { id: 'subtraction_master', name: 'Subtraction Star', emoji: '🥪', description: 'Complete all Picnic levels' },
   { id: 'multiplication_master', name: 'Factory Boss', emoji: '🧸', description: 'Complete all Toy Factory levels' },
   { id: 'fraction_master', name: 'Pizza Chef', emoji: '🍕', description: 'Complete all Pizza Party levels' },
+  { id: 'english_master', name: 'Safari Guide', emoji: '🦁', description: 'Complete all Word Safari levels' },
   { id: 'ten_stars', name: 'Star Collector', emoji: '🌟', description: 'Earn 10 stars total' },
   { id: 'fifty_coins', name: 'Coin Hoarder', emoji: '💰', description: 'Earn 50 coins total' },
   { id: 'level_5', name: 'Math Explorer', emoji: '🗺️', description: 'Reach player level 5' },

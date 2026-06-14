@@ -1,52 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useGameStore, ZoneKey } from "@/lib/store";
+import { useState } from "react";
+import { useGameStore } from "@/lib/store";
 import { getXPForNextLevel } from "@/lib/rlEngine";
 import { motion } from "framer-motion";
-
-const ZONE_METADATA = [
-  {
-    key: "fruitMarket" as ZoneKey,
-    name: "Fruit Market",
-    subtitle: "Addition",
-    emoji: "🍎",
-    color: "#ff6b81",
-    accentColor: "rgba(255, 107, 129, 0.2)",
-  },
-  {
-    key: "picnic" as ZoneKey,
-    name: "The Picnic",
-    subtitle: "Subtraction",
-    emoji: "🥪",
-    color: "#70a1ff",
-    accentColor: "rgba(112, 161, 255, 0.2)",
-  },
-  {
-    key: "toyFactory" as ZoneKey,
-    name: "Toy Factory",
-    subtitle: "Multiplication",
-    emoji: "🧸",
-    color: "#7bed9f",
-    accentColor: "rgba(123, 237, 159, 0.2)",
-  },
-  {
-    key: "pizzaParty" as ZoneKey,
-    name: "Pizza Party",
-    subtitle: "Fractions",
-    emoji: "🍕",
-    color: "#ffa502",
-    accentColor: "rgba(255, 165, 2, 0.2)",
-  },
-  {
-    key: "wordSafari" as ZoneKey,
-    name: "Word Safari",
-    subtitle: "Spelling & Vocab",
-    emoji: "🦁",
-    color: "#2ed573",
-    accentColor: "rgba(46, 213, 115, 0.2)",
-  },
-];
+import { AGE_RANGES, AgeRange, getAgeRange, getAllZoneKeys, getMaxLevelsForZone } from "@/lib/gameConfig";
 
 export default function ParentDashboard() {
   const {
@@ -59,16 +18,21 @@ export default function ParentDashboard() {
     zoneLearnerStates,
     zoneDifficulties,
     resetProgress,
+    selectedAgeRange,
   } = useGameStore();
 
-  const xpInfo = getXPForNextLevel(xp);
+  const [activeTab, setActiveTab] = useState<AgeRange>(selectedAgeRange || "elementary");
 
-  const totalLevelsUnlocked =
-    unlockedLevels.fruitMarket +
-    unlockedLevels.picnic +
-    unlockedLevels.toyFactory +
-    unlockedLevels.pizzaParty +
-    unlockedLevels.wordSafari;
+  const xpInfo = getXPForNextLevel(xp);
+  const allKeys = getAllZoneKeys();
+
+  const totalCompletedLevelsGlobal = allKeys.reduce((sum, key) => {
+    const unlocked = unlockedLevels[key] || 1;
+    const maxVal = getMaxLevelsForZone(key);
+    return sum + Math.min(maxVal, Math.max(0, unlocked - 1));
+  }, 0);
+
+  const totalMaxLevelsGlobal = allKeys.reduce((sum, key) => sum + getMaxLevelsForZone(key), 0);
 
   const handleReset = () => {
     if (
@@ -81,9 +45,9 @@ export default function ParentDashboard() {
     }
   };
 
-  const getStrengthAnalysis = (zone: ZoneKey) => {
-    const level = unlockedLevels[zone];
-    const skill = zoneLearnerStates[zone]?.skillLevel || 10;
+  const getStrengthAnalysis = (zoneKey: string) => {
+    const level = unlockedLevels[zoneKey] || 1;
+    const skill = zoneLearnerStates[zoneKey]?.skillLevel || 10;
 
     if (level === 1 && skill < 15) {
       return "Getting started! Introducing fundamental concepts.";
@@ -96,6 +60,8 @@ export default function ParentDashboard() {
     }
     return "Steadily developing. Needs focused practice to build confidence.";
   };
+
+  const activeRangeDef = getAgeRange(activeTab);
 
   return (
     <div
@@ -135,9 +101,13 @@ export default function ParentDashboard() {
               🧒
             </div>
             <div>
-              <h2 className="text-xl font-bold font-display">Math Explorer</h2>
-              <div className="text-white/50 text-xs mt-1">
-                Active learning progress tracking
+              <h2 className="text-xl font-bold font-display">Learner Profile</h2>
+              <div className="text-white/50 text-xs mt-1 flex items-center gap-1.5">
+                <span>Active Learning Range:</span>
+                <span className="bg-white/5 px-2 py-0.5 rounded text-white font-bold text-[10px] uppercase border border-white/10 flex items-center gap-1">
+                  <span>{getAgeRange(selectedAgeRange || "elementary").emoji}</span>
+                  <span>{getAgeRange(selectedAgeRange || "elementary").label}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -201,24 +171,62 @@ export default function ParentDashboard() {
                 Completed Levels
               </div>
               <div className="text-2xl font-black text-cyan-400">
-                {totalLevelsUnlocked - 5} / 50
+                {totalCompletedLevelsGlobal} / {totalMaxLevelsGlobal}
               </div>
             </div>
           </motion.div>
         </section>
 
+        {/* Age Range Tabs */}
+        <section className="flex flex-col gap-3">
+          <div className="text-xs text-white/40 font-bold uppercase tracking-wider">
+            Filter Curriculum Details by Age Range:
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {AGE_RANGES.map((ar) => {
+              const isActive = ar.key === activeTab;
+              return (
+                <button
+                  key={ar.key}
+                  onClick={() => setActiveTab(ar.key)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold border transition-all ${
+                    isActive
+                      ? "bg-white/10 border-white/30 text-white shadow-md shadow-white/5"
+                      : "bg-white/0 border-white/5 text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
+                  style={{
+                    borderColor: isActive ? ar.color : undefined,
+                  }}
+                >
+                  <span className="text-lg">{ar.emoji}</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>{ar.label}</span>
+                    <span className="text-[9px] text-white/45 mt-0.5">{ar.ageText}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Curriculum Analytics Details */}
         <section className="flex flex-col gap-6">
-          <h3 className="font-display text-xl font-bold text-white/80 border-b border-white/10 pb-2">
-            Curriculum Progress & Learning Strengths
-          </h3>
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+            <h3 className="font-display text-xl font-bold text-white/80">
+              Curriculum Progress & Learning Strengths
+            </h3>
+            <span className="text-xs font-bold text-white/45 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 uppercase tracking-wide">
+              {activeRangeDef.emoji} {activeRangeDef.label} Curriculum
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 gap-6">
-            {ZONE_METADATA.map((zone, idx) => {
+            {activeRangeDef.games.map((zone, idx) => {
               const ratingList = starRatings[zone.key] || [];
-              const unlocked = unlockedLevels[zone.key];
-              const percent = Math.min(100, Math.round((unlocked / 10) * 100));
-              const difficulty = zoneDifficulties[zone.key];
+              const unlocked = unlockedLevels[zone.key] || 1;
+              const completedVal = Math.min(zone.maxLevels, Math.max(0, unlocked - 1));
+              const percent = Math.min(100, Math.round((completedVal / zone.maxLevels) * 100));
+              const difficulty = zoneDifficulties[zone.key] || "easy";
               const skillLevel = zoneLearnerStates[zone.key]?.skillLevel || 10;
 
               return (
@@ -234,12 +242,17 @@ export default function ParentDashboard() {
                     <div className="flex items-center gap-3">
                       <span className="text-4xl">{zone.emoji}</span>
                       <div>
-                        <h4
-                          className="text-lg font-extrabold"
-                          style={{ color: zone.color }}
-                        >
-                          {zone.name}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          <h4
+                            className="text-lg font-extrabold"
+                            style={{ color: zone.color }}
+                          >
+                            {zone.name}
+                          </h4>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-white/5 border border-white/10 text-white/60">
+                            {zone.subject}
+                          </span>
+                        </div>
                         <span className="text-xs text-white/40 font-bold">
                           {zone.subtitle}
                         </span>
@@ -247,7 +260,7 @@ export default function ParentDashboard() {
                     </div>
 
                     {/* Difficulty Badge & Skill Level Gauge */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <div className="bg-white/5 px-3 py-1 rounded-full text-xs font-bold border border-white/10 flex items-center gap-1.5">
                         <span className="text-white/40">Difficulty:</span>
                         <span className="capitalize" style={{ color: zone.color }}>
@@ -258,6 +271,10 @@ export default function ParentDashboard() {
                         <span className="text-white/40">Skill Rating:</span>
                         <span className="text-cyan-400 font-extrabold">{skillLevel}/100</span>
                       </div>
+                      <div className="bg-white/5 px-3 py-1 rounded-full text-xs font-bold border border-white/10 flex items-center gap-1.5">
+                        <span className="text-white/40">Progress:</span>
+                        <span className="text-emerald-400 font-extrabold">{percent}%</span>
+                      </div>
                     </div>
                   </div>
 
@@ -266,8 +283,8 @@ export default function ParentDashboard() {
                     <div className="text-xs text-white/50 font-bold mb-2 uppercase tracking-wide">
                       Levels Path Rating:
                     </div>
-                    <div className="flex flex-wrap gap-2.5">
-                      {Array.from({ length: 10 }).map((_, lIdx) => {
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: zone.maxLevels }).map((_, lIdx) => {
                         const level = lIdx + 1;
                         const starsEarned = ratingList[lIdx] || 0;
                         const isLevelUnlocked = level <= unlocked;
@@ -275,28 +292,28 @@ export default function ParentDashboard() {
                         return (
                           <div
                             key={level}
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl w-12 h-14 border transition-all ${
+                            className={`flex flex-col items-center justify-center p-1.5 rounded-xl w-11 h-13 border transition-all ${
                               isLevelUnlocked
                                 ? "bg-white/5 border-white/20"
                                 : "bg-white/0 border-white/5 opacity-30"
                             }`}
                           >
-                            <span className="text-[10px] text-white/40 font-bold leading-none mb-1">
+                            <span className="text-[9px] text-white/40 font-bold leading-none mb-1">
                               L{level}
                             </span>
                             {isLevelUnlocked ? (
                               starsEarned > 0 ? (
-                                <div className="flex flex-col items-center">
-                                  <span className="text-xs text-yellow-400">⭐</span>
+                                <div className="flex flex-col items-center leading-none">
+                                  <span className="text-[10px] text-yellow-400">★</span>
                                   <span className="text-[8px] font-black text-yellow-300">
                                     {starsEarned}
                                   </span>
                                 </div>
                               ) : (
-                                <span className="text-[10px] text-white/70 font-bold">●</span>
+                                <span className="text-[10px] text-white/70 font-bold leading-none">●</span>
                               )
                             ) : (
-                              <span className="text-[9px]">🔒</span>
+                              <span className="text-[9px] leading-none">🔒</span>
                             )}
                           </div>
                         );

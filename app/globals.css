@@ -9,6 +9,33 @@
   --glow-accent: rgba(34, 211, 238, 0.3);
 }
 
+/* ─── Theme Overrides ─────────────────────────────────────────────────────── */
+
+.theme-elementary {
+  --background: #0f0a2e;
+  --foreground: #f0f0ff;
+}
+
+.theme-msl {
+  --background: #071a2e;
+  --foreground: #e8f4ff;
+}
+
+.theme-msu {
+  --background: #150a2e;
+  --foreground: #f0e8ff;
+}
+
+.theme-hs {
+  --background: #0a0a1a;
+  --foreground: #e0e8ff;
+}
+
+.theme-uni {
+  --background: #0d1117;
+  --foreground: #e6edf3;
+}
+
 @theme inline {
   /* Vibrant game palette */
   --color-primary: #8b5cf6;
@@ -96,6 +123,16 @@
     0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
     100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
   }
+
+  @keyframes neon-pulse {
+    0%, 100% { box-shadow: 0 0 5px var(--glow-color, rgba(6,182,212,0.4)), 0 0 20px var(--glow-color, rgba(6,182,212,0.2)); }
+    50% { box-shadow: 0 0 15px var(--glow-color, rgba(6,182,212,0.6)), 0 0 40px var(--glow-color, rgba(6,182,212,0.3)); }
+  }
+
+  @keyframes grid-scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
 }
 
 /* ─── Base Styles ─────────────────────────────────────────────────────────── */
@@ -125,6 +162,25 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Themed Glass Cards ──────────────────────────────────────────────────── */
+
+.theme-hs .glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(6, 182, 212, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(6, 182, 212, 0.1);
+}
+
+.theme-uni .glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ─── Buttons ─────────────────────────────────────────────────────────────── */
@@ -194,6 +250,22 @@ body {
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.2),
     0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* High School: sleek neon buttons */
+.theme-hs .btn-game {
+  border-radius: 0.75rem;
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px var(--glow-color, rgba(6,182,212,0.15));
+}
+
+/* University: minimal buttons */
+.theme-uni .btn-game {
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* ─── Answer Option Bubbles ───────────────────────────────────────────────── */
@@ -311,6 +383,34 @@ body {
   background: linear-gradient(135deg, #2e1a0a 0%, #4a2810 40%, #683a18 100%);
 }
 
+.zone-safari {
+  background: linear-gradient(135deg, #0a2e18 0%, #104028 40%, #1a6040 100%);
+}
+
+.zone-story {
+  background: linear-gradient(135deg, #1a0a2e 0%, #301060 40%, #4a1880 100%);
+}
+
+/* Middle School Lower: ocean explorer */
+.zone-msl {
+  background: linear-gradient(135deg, #071a2e 0%, #0c2d4a 40%, #0e3d64 100%);
+}
+
+/* Middle School Upper: arcade neon */
+.zone-msu {
+  background: linear-gradient(135deg, #150a2e 0%, #1f1044 40%, #2a185c 100%);
+}
+
+/* High School: cyber dark */
+.zone-hs {
+  background: linear-gradient(135deg, #0a0a1a 0%, #0d1020 40%, #101830 100%);
+}
+
+/* University: minimal scholar */
+.zone-uni {
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 40%, #1c2333 100%);
+}
+
 /* ─── Level Node Path ─────────────────────────────────────────────────────── */
 
 .level-node {
@@ -330,6 +430,31 @@ body {
   transform: none;
 }
 
+/* ─── Neon Glow Effects (HS/Uni) ──────────────────────────────────────────── */
+
+.neon-border {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.neon-text {
+  text-shadow:
+    0 0 7px currentColor,
+    0 0 14px currentColor,
+    0 0 28px currentColor;
+}
+
+/* ─── Grid Overlay (HS theme) ─────────────────────────────────────────────── */
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
 /* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar {
@@ -347,4 +472,15 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── KaTeX Overrides ─────────────────────────────────────────────────────── */
+
+.katex {
+  font-size: 1.2em !important;
+  color: inherit !important;
+}
+
+.katex-display {
+  margin: 0.5em 0 !important;
 }

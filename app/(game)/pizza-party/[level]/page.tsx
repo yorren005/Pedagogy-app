@@ -448,7 +448,20 @@ export default function PizzaPartyLevel() {
         currentRound={currentRound}
         totalRounds={totalRounds}
         comboStreak={comboStreak}
-      >
+      
+        lives={Math.max(0, 3 - totalErrors)}
+        onReset={() => {
+          setCurrentRound(0);
+          setGamePhase("playing");
+          setTotalErrors(0);
+          setCorrectAnswers(0);
+          setComboMax(0);
+          setTimesTaken([]);
+          roundStartTime.current = Date.now();
+        }}
+        slug="pizza-party"
+        ageRange="elementary"
+        problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
             {/* Pizza Visual Card */}

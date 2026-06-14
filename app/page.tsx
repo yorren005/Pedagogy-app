@@ -1,290 +1,198 @@
 "use client";
 
 import Link from "next/link";
-import { useGameStore } from "@/lib/store";
-import { getXPForNextLevel, BADGES } from "@/lib/rlEngine";
 import { motion } from "framer-motion";
+import { AGE_RANGES } from "@/lib/gameConfig";
 
-const ZONES = [
-  {
-    key: "fruitMarket" as const,
-    name: "Fruit Market",
-    subtitle: "Addition",
-    emoji: "🍎",
-    href: "/fruit-market",
-    color: "#ff6b81",
-    gradient: "from-[#ff6b81] to-[#ff4757]",
-    bgGlow: "rgba(255, 107, 129, 0.3)",
-  },
-  {
-    key: "picnic" as const,
-    name: "The Picnic",
-    subtitle: "Subtraction",
-    emoji: "🥪",
-    href: "/the-picnic",
-    color: "#70a1ff",
-    gradient: "from-[#70a1ff] to-[#1e90ff]",
-    bgGlow: "rgba(112, 161, 255, 0.3)",
-  },
-  {
-    key: "toyFactory" as const,
-    name: "Toy Factory",
-    subtitle: "Multiplication",
-    emoji: "🧸",
-    href: "/toy-factory",
-    color: "#7bed9f",
-    gradient: "from-[#7bed9f] to-[#2ed573]",
-    bgGlow: "rgba(123, 237, 159, 0.3)",
-  },
-  {
-    key: "pizzaParty" as const,
-    name: "Pizza Party",
-    subtitle: "Fractions",
-    emoji: "🍕",
-    href: "/pizza-party",
-    color: "#ffa502",
-    gradient: "from-[#ffa502] to-[#ff6348]",
-    bgGlow: "rgba(255, 165, 2, 0.3)",
-  },
-  {
-    key: "wordSafari" as const,
-    name: "Word Safari",
-    subtitle: "Spelling & Vocab",
-    emoji: "🦁",
-    href: "/word-safari",
-    color: "#2ed573",
-    gradient: "from-[#2ed573] to-[#10ac84]",
-    bgGlow: "rgba(46, 213, 115, 0.3)",
-  },
-];
-
-const FLOATING_ITEMS = [
-  { emoji: "⭐", x: "10%", y: "15%", delay: 0, duration: 5 },
-  { emoji: "🌙", x: "85%", y: "10%", delay: 1, duration: 6 },
-  { emoji: "✨", x: "70%", y: "25%", delay: 2, duration: 4 },
-  { emoji: "💫", x: "20%", y: "80%", delay: 0.5, duration: 5.5 },
-  { emoji: "🌟", x: "90%", y: "70%", delay: 1.5, duration: 4.5 },
-  { emoji: "⚡", x: "5%", y: "50%", delay: 2.5, duration: 6 },
-  { emoji: "🪐", x: "50%", y: "5%", delay: 3, duration: 7 },
+const FLOATING_SYMBOLS = [
+  { symbol: "∑", x: "8%", y: "12%", delay: 0, size: "text-4xl" },
+  { symbol: "π", x: "88%", y: "8%", delay: 0.8, size: "text-5xl" },
+  { symbol: "∫", x: "75%", y: "22%", delay: 1.6, size: "text-3xl" },
+  { symbol: "√", x: "15%", y: "75%", delay: 0.4, size: "text-4xl" },
+  { symbol: "∞", x: "92%", y: "65%", delay: 2, size: "text-5xl" },
+  { symbol: "θ", x: "5%", y: "45%", delay: 1.2, size: "text-3xl" },
+  { symbol: "λ", x: "50%", y: "4%", delay: 2.4, size: "text-4xl" },
+  { symbol: "Δ", x: "82%", y: "82%", delay: 1, size: "text-3xl" },
+  { symbol: "Ω", x: "35%", y: "88%", delay: 0.6, size: "text-4xl" },
+  { symbol: "∂", x: "65%", y: "45%", delay: 1.8, size: "text-3xl" },
+  { symbol: "ABC", x: "22%", y: "30%", delay: 2.2, size: "text-2xl" },
+  { symbol: "φ", x: "45%", y: "60%", delay: 0.3, size: "text-4xl" },
 ];
 
 export default function Home() {
-  const { stars, coins, xp, playerLevel, badges, unlockedLevels, starRatings } = useGameStore();
-  const xpInfo = getXPForNextLevel(xp);
-
-  const totalStarsEarned = Object.values(starRatings).flat().reduce((a, b) => a + b, 0);
-  const totalLevelsCompleted = Object.values(starRatings).flat().filter(s => s > 0).length;
-
   return (
-    <div className="flex flex-col flex-1 items-center min-h-screen relative overflow-y-auto overflow-x-hidden px-4 pb-24"
-      style={{ background: "linear-gradient(180deg, #0f0a2e 0%, #1a1145 30%, #0f0a2e 100%)" }}
+    <div
+      className="flex flex-col flex-1 items-center min-h-screen relative overflow-y-auto overflow-x-hidden px-4 pb-16"
+      style={{
+        background:
+          "linear-gradient(180deg, #0f0a2e 0%, #0d1528 30%, #0a1a30 60%, #0f0a2e 100%)",
+      }}
     >
-      {/* Floating Background Elements */}
-      {FLOATING_ITEMS.map((item, i) => (
+      {/* Floating Background Symbols */}
+      {FLOATING_SYMBOLS.map((item, i) => (
         <motion.div
           key={i}
-          className="absolute text-2xl md:text-3xl opacity-20 pointer-events-none select-none"
-          style={{ left: item.x, top: item.y }}
-          animate={{ y: [0, -15, 0], rotate: [0, 10, -10, 0] }}
-          transition={{ duration: item.duration, repeat: Infinity, delay: item.delay, ease: "easeInOut" }}
+          className={`absolute ${item.size} opacity-[0.06] pointer-events-none select-none font-display font-bold`}
+          style={{
+            left: item.x,
+            top: item.y,
+            color: AGE_RANGES[i % AGE_RANGES.length].color,
+          }}
+          animate={{
+            y: [0, -20, 0],
+            rotate: [0, 8, -8, 0],
+            opacity: [0.04, 0.08, 0.04],
+          }}
+          transition={{
+            duration: 5 + (i % 3),
+            repeat: Infinity,
+            delay: item.delay,
+            ease: "easeInOut",
+          }}
         >
-          {item.emoji}
+          {item.symbol}
         </motion.div>
       ))}
 
-      {/* Top Nav */}
-      <div className="w-full max-w-2xl flex justify-between items-center py-4 z-20">
-        <div className="flex gap-3">
-          <motion.div
-            className="glass-card px-4 py-2 flex items-center gap-2 font-bold text-yellow-300 text-sm"
-            whileHover={{ scale: 1.05 }}
-          >
-            <span>⭐</span> {stars}
-          </motion.div>
-          <motion.div
-            className="glass-card px-4 py-2 flex items-center gap-2 font-bold text-amber-300 text-sm"
-            whileHover={{ scale: 1.05 }}
-          >
-            <span>🪙</span> {coins}
-          </motion.div>
-        </div>
-        <Link
-          href="/dashboard"
-          className="glass-card px-4 py-2 flex items-center gap-2 font-bold text-white/60 text-sm hover:text-white/90 transition-colors"
+      {/* Hero Section */}
+      <motion.div
+        className="flex flex-col items-center z-10 mt-16 mb-4"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      >
+        {/* Logo / Title */}
+        <motion.div
+          className="text-7xl mb-4 drop-shadow-2xl"
+          animate={{ y: [0, -8, 0], rotate: [0, 3, -3, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
-          ⚙️ Parents
-        </Link>
-      </div>
-
-      {/* Player Profile */}
-      <motion.div
-        className="w-full max-w-2xl glass-card p-5 mb-8 z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="flex items-center gap-4 mb-3">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">
-            🧒
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl font-bold text-white">Math Explorer</span>
-              <span className="bg-gradient-to-r from-purple-500 to-cyan-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                Lv.{playerLevel}
-              </span>
-            </div>
-            <div className="text-white/50 text-xs mt-0.5">
-              {totalLevelsCompleted}/40 levels • {totalStarsEarned} stars earned
-            </div>
-          </div>
-        </div>
-        {/* XP Progress Bar */}
-        <div className="w-full">
-          <div className="flex justify-between text-xs text-white/40 mb-1">
-            <span>Level {playerLevel}</span>
-            <span>{xpInfo.current}/{xpInfo.needed} XP</span>
-          </div>
-          <div className="progress-bar">
-            <motion.div
-              className="progress-bar-fill xp-bar"
-              initial={{ width: 0 }}
-              animate={{ width: `${xpInfo.progress * 100}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Title */}
-      <motion.div
-        className="flex flex-col items-center gap-1 mb-8 z-10"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <h1 className="font-display text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-300 to-green-300">
-          Adventure Map
+          🎓
+        </motion.div>
+        <h1 className="font-display text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-300 to-green-300 mb-3 text-center leading-tight">
+          Learn & Play
         </h1>
-        <p className="text-white/50 font-bold text-sm">Choose your quest!</p>
+        <p className="text-white/40 font-semibold text-base md:text-lg text-center max-w-md mb-2">
+          Interactive games for Math & English
+        </p>
+        <div className="flex items-center gap-2 text-white/25 text-sm">
+          <span>📐 Math</span>
+          <span>•</span>
+          <span>📝 English</span>
+          <span>•</span>
+          <span>🎮 Games</span>
+        </div>
       </motion.div>
 
-      {/* Zone Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-2xl z-10">
-        {ZONES.map((zone, index) => {
-          const zoneStars = starRatings[zone.key];
-          const completedLevels = zoneStars.filter((s: number) => s > 0).length;
-          const totalStarsInZone = zoneStars.reduce((a: number, b: number) => a + b, 0);
-          const maxStars = 30; // 10 levels * 3 stars
-          const progress = completedLevels / 10;
+      {/* Subtitle */}
+      <motion.p
+        className="text-white/50 font-bold text-sm mb-8 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        Choose your level to begin
+      </motion.p>
 
-          return (
-            <motion.div
-              key={zone.key}
-              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+      {/* Age Range Cards */}
+      <div className="flex flex-col gap-4 w-full max-w-lg z-10">
+        {AGE_RANGES.map((ar, index) => (
+          <motion.div
+            key={ar.key}
+            initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.3 + index * 0.12,
+              ease: [0.34, 1.56, 0.64, 1],
+            }}
+          >
+            <Link
+              href={`/${ar.key}`}
+              className="group block relative overflow-hidden rounded-2xl hover:scale-[1.02] transition-all duration-300"
             >
-              <Link
-                href={zone.href}
-                className="group block glass-card p-6 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300"
-              >
+              {/* Card Background */}
+              <div
+                className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity"
+                style={{
+                  background: `linear-gradient(135deg, ${ar.color}22 0%, transparent 60%)`,
+                }}
+              />
+
+              <div className="glass-card p-5 relative">
                 {/* Glow Effect */}
                 <div
-                  className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"
-                  style={{ background: zone.bgGlow }}
+                  className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+                  style={{ background: ar.bgGlow }}
                 />
 
-                <div className="relative z-10">
-                  {/* Zone Icon */}
+                <div className="relative z-10 flex items-center gap-4">
+                  {/* Emoji Icon */}
                   <motion.div
-                    className="text-6xl mb-3 drop-shadow-lg"
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: index * 0.5, ease: "easeInOut" }}
+                    className="text-5xl drop-shadow-lg flex-shrink-0"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      delay: index * 0.3,
+                      ease: "easeInOut",
+                    }}
                   >
-                    {zone.emoji}
+                    {ar.emoji}
                   </motion.div>
 
-                  {/* Zone Name */}
-                  <h2 className="text-xl font-extrabold mb-0.5" style={{ color: zone.color }}>
-                    {zone.name}
-                  </h2>
-                  <p className="text-white/40 text-xs font-bold mb-3">{zone.subtitle}</p>
-
-                  {/* Progress */}
-                  <div className="flex items-center justify-between text-xs text-white/50 mb-1.5">
-                    <span>{completedLevels}/10 levels</span>
-                    <span>⭐ {totalStarsInZone}/{maxStars}</span>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h2
+                        className="text-xl font-extrabold truncate"
+                        style={{ color: ar.color }}
+                      >
+                        {ar.label}
+                      </h2>
+                      <span className="text-xs text-white/30 font-bold bg-white/5 px-2 py-0.5 rounded-full flex-shrink-0">
+                        {ar.ageText}
+                      </span>
+                    </div>
+                    <p className="text-white/40 text-xs font-medium leading-relaxed">
+                      {ar.description}
+                    </p>
+                    <div className="flex gap-3 mt-2">
+                      <span className="text-[10px] text-white/25 font-bold">
+                        📐 {ar.games.filter((g) => g.subject === "math").length} Math
+                      </span>
+                      <span className="text-[10px] text-white/25 font-bold">
+                        📝 {ar.games.filter((g) => g.subject === "english").length} English
+                      </span>
+                      <span className="text-[10px] text-white/25 font-bold">
+                        🎮 {ar.games.reduce((sum, g) => sum + g.maxLevels, 0)} Levels
+                      </span>
+                    </div>
                   </div>
-                  <div className="progress-bar h-2">
-                    <div
-                      className="progress-bar-fill h-full"
-                      style={{
-                        width: `${progress * 100}%`,
-                        background: `linear-gradient(90deg, ${zone.color}, ${zone.color}88)`,
-                      }}
-                    />
-                  </div>
 
-                  {/* Level Unlock Indicator */}
-                  <div className="mt-3 text-xs text-white/30">
-                    Level {unlockedLevels[zone.key]} unlocked
-                    {unlockedLevels[zone.key] >= 10 && " ✅"}
+                  {/* Arrow */}
+                  <div className="text-white/20 text-2xl group-hover:text-white/40 transition-colors group-hover:translate-x-1 duration-300 flex-shrink-0">
+                    →
                   </div>
                 </div>
-              </Link>
-            </motion.div>
-          );
-        })}
+              </div>
+            </Link>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Badges Section */}
-      {badges.length > 0 && (
-        <motion.div
-          className="w-full max-w-2xl mt-8 z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          <h3 className="text-sm font-bold text-white/40 mb-3 px-1">🏆 Badges Earned</h3>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-            {badges.map((badgeId) => {
-              const badge = BADGES.find(b => b.id === badgeId);
-              if (!badge) return null;
-              return (
-                <motion.div
-                  key={badgeId}
-                  className="glass-card flex-shrink-0 w-20 h-20 flex flex-col items-center justify-center gap-1"
-                  whileHover={{ scale: 1.1, y: -4 }}
-                >
-                  <span className="text-2xl">{badge.emoji}</span>
-                  <span className="text-[10px] text-white/50 text-center leading-tight">{badge.name}</span>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Daily Challenge */}
+      {/* Footer */}
       <motion.div
-        className="w-full max-w-2xl mt-6 z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
+        className="mt-10 mb-4 z-10 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
       >
-        <Link href={`/${['fruit-market', 'the-picnic', 'toy-factory', 'pizza-party', 'word-safari'][Math.floor(Date.now() / 86400000) % 5]}`}>
-          <div className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 border border-purple-500/20">
-            <div className="absolute -top-6 -right-6 text-7xl opacity-10 rotate-12">🎯</div>
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="text-3xl">🎯</div>
-              <div>
-                <div className="font-bold text-white text-sm">Daily Challenge</div>
-                <div className="text-white/40 text-xs">Earn bonus XP today!</div>
-              </div>
-              <div className="ml-auto text-white/30 text-xl">→</div>
-            </div>
-          </div>
+        <Link
+          href="/dashboard"
+          className="text-white/30 text-xs font-semibold hover:text-white/50 transition-colors"
+        >
+          ⚙️ Dashboard & Progress
         </Link>
       </motion.div>
     </div>

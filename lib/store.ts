@@ -2,40 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { LearnerState, Difficulty } from './rlEngine';
+import { AgeRange, getAllZoneKeys, getMaxLevelsForZone } from './gameConfig';
 
-export type ZoneKey = 'fruitMarket' | 'picnic' | 'toyFactory' | 'pizzaParty' | 'wordSafari';
-
-export interface UnlockedLevels {
-  fruitMarket: number;
-  picnic: number;
-  toyFactory: number;
-  pizzaParty: number;
-  wordSafari: number;
-}
-
-export interface StarRatings {
-  fruitMarket: number[];  // index 0 = level 1, value = 0-3 stars
-  picnic: number[];
-  toyFactory: number[];
-  pizzaParty: number[];
-  wordSafari: number[];
-}
-
-export interface ZoneLearnerStates {
-  fruitMarket: LearnerState;
-  picnic: LearnerState;
-  toyFactory: LearnerState;
-  pizzaParty: LearnerState;
-  wordSafari: LearnerState;
-}
-
-export interface ZoneDifficulties {
-  fruitMarket: Difficulty;
-  picnic: Difficulty;
-  toyFactory: Difficulty;
-  pizzaParty: Difficulty;
-  wordSafari: Difficulty;
-}
+// Dynamic zone key - supports all games across all age ranges
+export type ZoneKey = string;
 
 export interface GameState {
   stars: number;
@@ -46,10 +16,11 @@ export interface GameState {
   badges: string[];
   comboStreak: number;
   maxCombo: number;
-  unlockedLevels: UnlockedLevels;
-  starRatings: StarRatings;
-  zoneLearnerStates: ZoneLearnerStates;
-  zoneDifficulties: ZoneDifficulties;
+  selectedAgeRange: AgeRange;
+  unlockedLevels: Record<string, number>;
+  starRatings: Record<string, number[]>;
+  zoneLearnerStates: Record<string, LearnerState>;
+  zoneDifficulties: Record<string, Difficulty>;
 }
 
 export interface GameStoreContextType extends GameState {
@@ -65,6 +36,7 @@ export interface GameStoreContextType extends GameState {
   incrementCombo: () => void;
   resetCombo: () => void;
   resetProgress: () => void;
+  setSelectedAgeRange: (ageRange: AgeRange) => void;
 }
 
 const initialLearnerState: LearnerState = {
@@ -73,37 +45,24 @@ const initialLearnerState: LearnerState = {
   recentFailureStreak: 0,
 };
 
-const defaultUnlockedLevels: UnlockedLevels = {
-  fruitMarket: 1,
-  picnic: 1,
-  toyFactory: 1,
-  pizzaParty: 1,
-  wordSafari: 1,
-};
+function buildDefaults() {
+  const allKeys = getAllZoneKeys();
+  const unlockedLevels: Record<string, number> = {};
+  const starRatings: Record<string, number[]> = {};
+  const zoneLearnerStates: Record<string, LearnerState> = {};
+  const zoneDifficulties: Record<string, Difficulty> = {};
 
-const defaultStarRatings: StarRatings = {
-  fruitMarket: Array(10).fill(0),
-  picnic: Array(10).fill(0),
-  toyFactory: Array(10).fill(0),
-  pizzaParty: Array(10).fill(0),
-  wordSafari: Array(10).fill(0),
-};
+  for (const key of allKeys) {
+    unlockedLevels[key] = 1;
+    starRatings[key] = Array(getMaxLevelsForZone(key)).fill(0);
+    zoneLearnerStates[key] = { ...initialLearnerState };
+    zoneDifficulties[key] = 'easy';
+  }
 
-const defaultZoneLearnerStates: ZoneLearnerStates = {
-  fruitMarket: { ...initialLearnerState },
-  picnic: { ...initialLearnerState },
-  toyFactory: { ...initialLearnerState },
-  pizzaParty: { ...initialLearnerState },
-  wordSafari: { ...initialLearnerState },
-};
+  return { unlockedLevels, starRatings, zoneLearnerStates, zoneDifficulties };
+}
 
-const defaultZoneDifficulties: ZoneDifficulties = {
-  fruitMarket: 'easy',
-  picnic: 'easy',
-  toyFactory: 'easy',
-  pizzaParty: 'easy',
-  wordSafari: 'easy',
-};
+const defaults = buildDefaults();
 
 const defaultState: GameState = {
   stars: 0,
@@ -114,10 +73,11 @@ const defaultState: GameState = {
   badges: [],
   comboStreak: 0,
   maxCombo: 0,
-  unlockedLevels: defaultUnlockedLevels,
-  starRatings: defaultStarRatings,
-  zoneLearnerStates: defaultZoneLearnerStates,
-  zoneDifficulties: defaultZoneDifficulties,
+  selectedAgeRange: 'elementary',
+  unlockedLevels: defaults.unlockedLevels,
+  starRatings: defaults.starRatings,
+  zoneLearnerStates: defaults.zoneLearnerStates,
+  zoneDifficulties: defaults.zoneDifficulties,
 };
 
 const GameStoreContext = createContext<GameStoreContextType | undefined>(undefined);
@@ -143,19 +103,20 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
   const [badges, setBadges] = useState<string[]>(defaultState.badges);
   const [comboStreak, setComboStreak] = useState(defaultState.comboStreak);
   const [maxCombo, setMaxCombo] = useState(defaultState.maxCombo);
-  const [unlockedLevels, setUnlockedLevels] = useState<UnlockedLevels>(defaultState.unlockedLevels);
-  const [starRatings, setStarRatings] = useState<StarRatings>(defaultState.starRatings);
-  const [zoneLearnerStates, setZoneLearnerStates] = useState<ZoneLearnerStates>(defaultState.zoneLearnerStates);
-  const [zoneDifficulties, setZoneDifficulties] = useState<ZoneDifficulties>(defaultState.zoneDifficulties);
+  const [selectedAgeRange, setSelectedAgeRange] = useState<AgeRange>(defaultState.selectedAgeRange);
+  const [unlockedLevels, setUnlockedLevels] = useState<Record<string, number>>(defaultState.unlockedLevels);
+  const [starRatings, setStarRatings] = useState<Record<string, number[]>>(defaultState.starRatings);
+  const [zoneLearnerStates, setZoneLearnerStates] = useState<Record<string, LearnerState>>(defaultState.zoneLearnerStates);
+  const [zoneDifficulties, setZoneDifficulties] = useState<Record<string, Difficulty>>(defaultState.zoneDifficulties);
 
   // Load from localStorage on mount
   useEffect(() => {
     setIsClient(true);
-    const saved = localStorage.getItem('mak_progress_v2');
+    const saved = localStorage.getItem('mak_progress_v3');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultUnlockedLevels, ...parsed.unlockedLevels });
+        if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultState.unlockedLevels, ...parsed.unlockedLevels });
         if (parsed.stars != null) setStars(parsed.stars);
         if (parsed.coins != null) setCoins(parsed.coins);
         if (parsed.xp != null) {
@@ -163,24 +124,33 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
           setPlayerLevel(getPlayerLevelFromXP(parsed.xp));
         }
         if (parsed.badges) setBadges(parsed.badges);
-        if (parsed.starRatings) setStarRatings({ ...defaultStarRatings, ...parsed.starRatings });
-        if (parsed.zoneLearnerStates) setZoneLearnerStates({ ...defaultZoneLearnerStates, ...parsed.zoneLearnerStates });
-        if (parsed.zoneDifficulties) setZoneDifficulties({ ...defaultZoneDifficulties, ...parsed.zoneDifficulties });
+        if (parsed.starRatings) setStarRatings({ ...defaultState.starRatings, ...parsed.starRatings });
+        if (parsed.zoneLearnerStates) setZoneLearnerStates({ ...defaultState.zoneLearnerStates, ...parsed.zoneLearnerStates });
+        if (parsed.zoneDifficulties) setZoneDifficulties({ ...defaultState.zoneDifficulties, ...parsed.zoneDifficulties });
         if (parsed.maxCombo) setMaxCombo(parsed.maxCombo);
+        if (parsed.selectedAgeRange) setSelectedAgeRange(parsed.selectedAgeRange);
       } catch (e) {
         console.error("Failed to parse save data", e);
       }
     } else {
-      // Try migrating from old save format
-      const oldSaved = localStorage.getItem('mak_progress');
-      if (oldSaved) {
+      // Try migrating from v2
+      const v2 = localStorage.getItem('mak_progress_v2');
+      if (v2) {
         try {
-          const parsed = JSON.parse(oldSaved);
-          if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultUnlockedLevels, ...parsed.unlockedLevels });
-          if (parsed.stars) setStars(parsed.stars);
-          if (parsed.coins) setCoins(parsed.coins);
+          const parsed = JSON.parse(v2);
+          if (parsed.unlockedLevels) setUnlockedLevels({ ...defaultState.unlockedLevels, ...parsed.unlockedLevels });
+          if (parsed.stars != null) setStars(parsed.stars);
+          if (parsed.coins != null) setCoins(parsed.coins);
+          if (parsed.xp != null) {
+            setXP(parsed.xp);
+            setPlayerLevel(getPlayerLevelFromXP(parsed.xp));
+          }
+          if (parsed.badges) setBadges(parsed.badges);
+          if (parsed.starRatings) setStarRatings({ ...defaultState.starRatings, ...parsed.starRatings });
+          if (parsed.zoneLearnerStates) setZoneLearnerStates({ ...defaultState.zoneLearnerStates, ...parsed.zoneLearnerStates });
+          if (parsed.zoneDifficulties) setZoneDifficulties({ ...defaultState.zoneDifficulties, ...parsed.zoneDifficulties });
         } catch (e) {
-          console.error("Failed to migrate old save data", e);
+          console.error("Failed to migrate from v2", e);
         }
       }
     }
@@ -189,7 +159,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
   // Save to localStorage
   useEffect(() => {
     if (isClient) {
-      localStorage.setItem('mak_progress_v2', JSON.stringify({
+      localStorage.setItem('mak_progress_v3', JSON.stringify({
         unlockedLevels,
         stars,
         coins,
@@ -199,9 +169,10 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
         zoneLearnerStates,
         zoneDifficulties,
         maxCombo,
+        selectedAgeRange,
       }));
     }
-  }, [unlockedLevels, stars, coins, xp, badges, starRatings, zoneLearnerStates, zoneDifficulties, maxCombo, isClient]);
+  }, [unlockedLevels, stars, coins, xp, badges, starRatings, zoneLearnerStates, zoneDifficulties, maxCombo, selectedAgeRange, isClient]);
 
   // Recalculate player level when XP changes
   useEffect(() => {
@@ -225,9 +196,9 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
 
   const setStarRatingFn = useCallback((zone: ZoneKey, level: number, newStars: number) => {
     setStarRatings(prev => {
-      const zoneRatings = [...prev[zone]];
+      const zoneRatings = [...(prev[zone] || Array(getMaxLevelsForZone(zone)).fill(0))];
       // Only update if new rating is better
-      if (newStars > zoneRatings[level - 1]) {
+      if (newStars > (zoneRatings[level - 1] || 0)) {
         zoneRatings[level - 1] = newStars;
         return { ...prev, [zone]: zoneRatings };
       }
@@ -245,8 +216,9 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
 
   const unlockNextLevel = useCallback((zone: ZoneKey, currentLevelCompleted: number) => {
     setUnlockedLevels(prev => {
-      if (currentLevelCompleted >= prev[zone]) {
-        return { ...prev, [zone]: Math.min(10, currentLevelCompleted + 1) };
+      const maxLevels = getMaxLevelsForZone(zone);
+      if (currentLevelCompleted >= (prev[zone] || 1)) {
+        return { ...prev, [zone]: Math.min(maxLevels, currentLevelCompleted + 1) };
       }
       return prev;
     });
@@ -275,6 +247,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
     setStarRatings(defaultState.starRatings);
     setZoneLearnerStates(defaultState.zoneLearnerStates);
     setZoneDifficulties(defaultState.zoneDifficulties);
+    localStorage.removeItem('mak_progress_v3');
     localStorage.removeItem('mak_progress_v2');
     localStorage.removeItem('mak_progress');
   }, []);
@@ -291,6 +264,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
         badges,
         comboStreak,
         maxCombo,
+        selectedAgeRange,
         unlockedLevels,
         starRatings,
         zoneLearnerStates,
@@ -307,6 +281,7 @@ export const GameStoreProvider = ({ children }: { children: ReactNode }) => {
         incrementCombo,
         resetCombo,
         resetProgress,
+        setSelectedAgeRange,
       },
     },
     children

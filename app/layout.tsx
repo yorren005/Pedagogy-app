@@ -16,17 +16,17 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Math Adventure Kingdom",
-  description: "A fun and educational math learning game for children aged 3-6",
+  title: "Learn & Play — Interactive Math & English Games",
+  description: "Interactive educational games for Math and English covering Elementary through University levels. Adaptive difficulty, rich animations, and gamified learning.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Math Kingdom",
+    title: "Learn & Play",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#70a1ff",
+  themeColor: "#0f0a2e",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

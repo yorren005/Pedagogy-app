@@ -222,21 +222,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Coordinate Grid Plot
-                  </div>
-                  <div className="w-32 h-32 bg-blue-950/30 rounded-2xl flex items-center justify-center relative border border-blue-500/20 shadow-inner">
-                    <svg className="w-full h-full text-blue-400" viewBox="0 0 100 100">
-                      <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-                      <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-                      <circle cx="50" cy="50" r="3" fill="white" />
-                      <line x1="50" y1="50" x2="80" y2="20" stroke="currentColor" strokeWidth="2" strokeDasharray="3,3" />
-                      <circle cx="80" cy="20" r="4" fill="yellow" />
-                    </svg>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

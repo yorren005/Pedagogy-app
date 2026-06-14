@@ -7,6 +7,7 @@ import { useAudio } from '@/lib/useAudio';
 import { AgeRange, getGameConfig } from '@/lib/gameConfig';
 import ConceptVisualizer from './ConceptVisualizer';
 import GameVisualizer from './GameVisualizer';
+import HintBox from './HintBox';
 
 interface GameShellProps {
   zoneClass: string;
@@ -57,15 +58,10 @@ export default function GameShell({
     playMusic(ageRange);
   }, [ageRange, playMusic]);
 
-  // Automatically trigger Concept Visualizer on mount if Level 1 and never seen before
+  // Automatically trigger Concept Visualizer on mount for every level
   useEffect(() => {
-    if (slug && levelNum === 1) {
-      const seenKey = `pedagogy_seen_${slug}`;
-      const hasSeen = localStorage.getItem(seenKey);
-      if (!hasSeen) {
-        setShowTutorial(true);
-        localStorage.setItem(seenKey, 'true');
-      }
+    if (slug) {
+      setShowTutorial(true);
     }
   }, [slug, levelNum]);
 
@@ -225,8 +221,9 @@ export default function GameShell({
         {slug ? (
           <div className="flex flex-col md:flex-row items-center md:items-stretch justify-center gap-8 w-full">
             {/* Left side: options / question inputs */}
-            <div className="flex-1 w-full max-w-md flex flex-col items-center justify-center">
+            <div className="flex-1 w-full max-w-md flex flex-col items-center justify-center gap-4">
               {children}
+              <HintBox slug={slug} problem={problem} />
             </div>
             
             {/* Right side: premium animated moving concept visualizer */}
@@ -247,6 +244,7 @@ export default function GameShell({
           <ConceptVisualizer
             slug={slug}
             ageRange={ageRange}
+            levelNum={levelNum}
             onClose={() => setShowTutorial(false)}
           />
         )}

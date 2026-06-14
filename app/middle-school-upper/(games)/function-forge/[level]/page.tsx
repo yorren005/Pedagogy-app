@@ -219,20 +219,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Forge coordinates Animate Graph
-                  </div>
-                  <div className="w-28 h-28 bg-purple-950/30 rounded-2xl flex items-center justify-center relative border border-purple-500/20 shadow-inner">
-                    <div className="absolute inset-0 grid grid-cols-5 grid-rows-5 opacity-10">
-                      {Array.from({ length: 25 }).map((_, i) => (
-                        <div key={i} className="border border-white/50" />
-                      ))}
-                    </div>
-                    <span className="text-4xl text-purple-400 font-extrabold animate-pulse">⚒️</span>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

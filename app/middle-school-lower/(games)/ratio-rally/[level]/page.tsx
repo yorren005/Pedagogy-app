@@ -226,35 +226,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Ratio Track Fuel the Racing Car!
-                  </div>
-                  <div className="w-full flex flex-col gap-4 py-4 max-w-xs">
-                    {/* Race Tracks */}
-                    <div className="h-6 w-full bg-black/30 rounded-full relative flex items-center border border-white/5">
-                      <motion.span 
-                        className="absolute text-2xl" 
-                        animate={{ left: showSuccessFlash ? '80%' : '20%' }}
-                        transition={{ duration: 1 }}
-                        style={{ left: '20%' }}
-                      >
-                        🏎️
-                      </motion.span>
-                    </div>
-                    <div className="h-6 w-full bg-black/30 rounded-full relative flex items-center border border-white/5">
-                      <motion.span 
-                        className="absolute text-2xl" 
-                        animate={{ left: showSuccessFlash ? '80%' : '50%' }}
-                        transition={{ duration: 1 }}
-                        style={{ left: '50%' }}
-                      >
-                        🚓
-                      </motion.span>
-                    </div>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

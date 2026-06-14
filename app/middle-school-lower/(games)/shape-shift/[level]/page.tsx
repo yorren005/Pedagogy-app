@@ -233,46 +233,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4">
-                  {problem.shapeType === 'rectangle' && (
-                    <div className="flex flex-col items-center justify-center p-4">
-                      <div 
-                        className="bg-teal-500/20 border-3 border-teal-400 rounded-lg flex items-center justify-center shadow-lg relative"
-                        style={{ width: `${problem.width * 14}px`, height: `${problem.height * 14}px` }}
-                      >
-                        <span className="absolute -left-8 font-bold text-teal-300">{problem.height}</span>
-                        <span className="absolute -bottom-6 font-bold text-teal-300">{problem.width}</span>
-                        <span className="text-white/60 font-semibold text-xs">Rectangle</span>
-                      </div>
-                    </div>
-                  )}
-                  {problem.shapeType === 'triangle' && (
-                    <div className="flex flex-col items-center justify-center p-4">
-                      <div className="w-32 h-24 relative flex items-center justify-center">
-                        <svg className="w-full h-full text-teal-400" viewBox="0 0 100 80">
-                          <polygon points="50,10 10,70 90,70" fill="rgba(20, 184, 166, 0.15)" stroke="currentColor" strokeWidth="3" />
-                          <line x1="50" y1="10" x2="50" y2="70" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeDasharray="4,4" />
-                          <text x="55" y="45" fill="white" fontSize="8" fontWeight="bold">h = {problem.height}</text>
-                          <text x="40" y="78" fill="currentColor" fontSize="8" fontWeight="bold">b = {problem.width}</text>
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                  {problem.shapeType === 'angle' && (
-                    <div className="flex flex-col items-center justify-center p-4">
-                      <div className="w-32 h-24 relative flex items-center justify-center">
-                        <svg className="w-full h-full text-teal-400" viewBox="0 0 100 80">
-                          <polygon points="10,70 90,70 50,20" fill="none" stroke="currentColor" strokeWidth="3" />
-                          <text x="15" y="65" fill="white" fontSize="8">{problem.width}°</text>
-                          <text x="75" y="65" fill="white" fontSize="8">{problem.height}°</text>
-                          <text x="46" y="32" fill="yellow" fontSize="10" fontWeight="bold">θ</text>
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-xs text-white/40 mt-6 uppercase tracking-wider font-bold">Use the formulas to solve</p>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

@@ -209,19 +209,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Normal Bell Curve Distribution
-                  </div>
-                  <div className="w-32 h-24 relative flex items-center justify-center mt-2">
-                    <svg className="w-full h-full text-emerald-400" viewBox="0 0 120 80">
-                      <path d="M10,70 Q60,10 110,70" fill="rgba(16,185,129,0.15)" stroke="currentColor" strokeWidth="2.5" />
-                      <line x1="60" y1="10" x2="60" y2="70" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeDasharray="3,3" />
-                      <circle cx="85" cy="40" r="4" fill="yellow" />
-                    </svg>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

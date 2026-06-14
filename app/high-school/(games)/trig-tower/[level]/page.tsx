@@ -228,21 +228,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Unit Circle Visualization
-                  </div>
-                  <div className="w-28 h-28 relative flex items-center justify-center mt-2">
-                    <svg className="w-full h-full text-cyan-400" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2" />
-                      <line x1="50" y1="10" x2="50" y2="90" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                      <line x1="10" y1="50" x2="90" y2="50" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                      <line x1="50" y1="50" x2="80" y2="30" stroke="yellow" strokeWidth="2" />
-                      <circle cx="80" cy="30" r="3" fill="yellow" />
-                    </svg>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

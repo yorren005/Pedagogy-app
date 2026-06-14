@@ -247,41 +247,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl shadow-lg relative overflow-hidden mb-4">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Balance Scale Balance the equation!
-                  </div>
-                  <div className="flex justify-between items-center w-full max-w-sm h-40 relative px-4">
-                    {/* Left Pan */}
-                    <motion.div 
-                      className="flex flex-col items-center justify-center bg-cyan-500/20 border-2 border-cyan-400/30 rounded-2xl p-4 w-28 h-20 shadow-lg"
-                      animate={{ y: showSuccessFlash ? [0, 4, 0] : [0, -2, 0] }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    >
-                      <span className="text-sm font-semibold text-cyan-300">Left Side</span>
-                      <span className="text-xl font-bold text-white mt-1">{problem.visualScaleLeft}</span>
-                    </motion.div>
-                    
-                    {/* Pivot point */}
-                    <div className="w-2 h-24 bg-white/20 rounded-full flex justify-center items-end">
-                      <div className="w-6 h-6 bg-cyan-500 rounded-full border-2 border-white/20 shadow-md" />
-                    </div>
-
-                    {/* Right Pan */}
-                    <motion.div 
-                      className="flex flex-col items-center justify-center bg-cyan-500/20 border-2 border-cyan-400/30 rounded-2xl p-4 w-28 h-20 shadow-lg"
-                      animate={{ y: showSuccessFlash ? [0, 4, 0] : [0, 2, 0] }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 1 }}
-                    >
-                      <span className="text-sm font-semibold text-cyan-300">Right Side</span>
-                      <span className="text-xl font-bold text-white mt-1">{problem.visualScaleRight}</span>
-                    </motion.div>
-                  </div>
-                  <p className="text-xs text-white/50 text-center max-w-xs leading-normal mt-2">
-                    Tip: Solve for <strong>x</strong> to balance the left and right pans.
-                  </p>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

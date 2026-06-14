@@ -229,21 +229,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4">
-                  <div className="flex flex-wrap gap-2.5 justify-center py-4">
-                    {problem.numsString.split(', ').map((n: string, idx: number) => (
-                      <motion.div 
-                        key={idx}
-                        className="w-12 h-12 bg-purple-600/30 border border-purple-400/50 rounded-xl flex items-center justify-center text-xl font-bold shadow-md"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        {n}
-                      </motion.div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-white/40 mt-4 font-semibold uppercase tracking-wider">Analyze the evidence set</p>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

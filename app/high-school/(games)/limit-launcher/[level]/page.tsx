@@ -225,22 +225,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Calculus Launcher Space Engine
-                  </div>
-                  <div className="h-6 w-full max-w-xs bg-black/30 rounded-full relative flex items-center border border-white/5 mt-4">
-                    <motion.span 
-                      className="absolute text-2xl" 
-                      animate={{ left: showSuccessFlash ? '90%' : '10%' }}
-                      transition={{ duration: 0.8 }}
-                      style={{ left: '10%' }}
-                    >
-                      🚀
-                    </motion.span>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (

@@ -216,21 +216,7 @@ export default function GameLevelPage() {
         problem={problem} >
         <WrongShake trigger={showWrong}>
           <div className="w-full max-w-md flex flex-col items-center">
-            {/* Custom Interactive UI for Theme/Visual representation */}
-            <div className="w-full flex flex-col items-center p-6 bg-white/5 border border-white/10 rounded-3xl mb-4 relative overflow-hidden">
-                  <div className="absolute top-2 left-4 text-xs text-white/40 font-bold uppercase tracking-wider">
-                    Probability Pinball Board
-                  </div>
-                  <div className="flex gap-4 py-4 justify-center items-center">
-                    <motion.div 
-                      className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold shadow-md shadow-emerald-500/30"
-                      animate={{ y: [0, 10, -5, 0] }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
-                    >
-                      🔮
-                    </motion.div>
-                  </div>
-                </div>
+            
 
             {/* Answer Selector */}
             {typeof problem.options[0] === 'number' ? (
